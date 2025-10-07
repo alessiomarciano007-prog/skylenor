@@ -291,3 +291,71 @@ export default function Home() {
     </main>
   );
 }
+
+// ---\n// API Route: /app/api/lead/route.ts (Next.js 13+)\n// Invia il form a support@skylenor.com usando Resend\n// ---\n
+export const runtime = "edge"; // opzionale, va bene anche default
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { name, email, location, service, details } = body || {};
+
+    if (!email || !location || !service) {
+      return new Response(JSON.stringify({ ok: false, error: "Missing fields" }), { status: 400 });
+    }
+
+    // 1) Validazioni minime
+    const clean = (v: string) => String(v || "").slice(0, 2000);
+    const msg = `Nuova richiesta dal sito Skylenor\n\n` +
+      `Nome: ${clean(name)}\n` +
+      `Email: ${clean(email)}\n` +
+      `Località: ${clean(location)}\n` +
+      `Servizio: ${clean(service)}\n` +
+      `Dettagli:\n${clean(details)}\n`;
+
+    // 2) Invio con Resend
+    const RESEND_API_KEY = process.env.RESEND_API_KEY!;
+    const to = "support@skylenor.com";
+
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "Skylenor <no-reply@skylenor.com>",
+        to: [to],
+        subject: `Richiesta drone — ${clean(location)} / ${clean(service)}`,
+        text: msg,
+      }),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error("Resend error:", txt);
+      return new Response(JSON.stringify({ ok: false, error: "mail_failed" }), { status: 500 });
+    }
+
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ ok: false, error: "server_error" }), { status: 500 });
+  }
+}
+
+/*
+SETUP RAPIDO EMAIL (Resend)
+1) Crea un account su Resend e genera una API Key → RESEND_API_KEY
+2) Verifica il dominio skylenor.com su Resend (aggiungi record DNS DKIM/return-path)
+3) In .env.local inserisci:
+   RESEND_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxx
+4) Struttura file (Next.js 13 App Router):
+   /app/page.tsx              ← la home che hai già
+   /app/api/lead/route.ts     ← questo file
+5) Deploy su Vercel o build locale. Prova il form: deve restituire ✅ e arrivare email a support@skylenor.com.
+
+Se preferisci evitare backend ora: puoi usare Formspree/Basin/Typedform. Basta cambiare l'azione del form
+con l'endpoint del servizio e arrivano le mail lo stesso (pro: zero codice, contro: meno controllo).
+*/
+
