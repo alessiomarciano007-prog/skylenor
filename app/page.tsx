@@ -1,28 +1,102 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+/**
+ * Skylenor – Home con effetti di scroll
+ * - Sezioni a schermo intero (scroll-snap)
+ * - La sezione precedente si oscura progressivamente mentre scorri
+ * - Overlay testo (titolo + sottotitolo)
+ * - Form collegato a /api/lead (single opt-in)
+ *
+ * Sostituisci gli URL delle immagini in `SECTIONS` con i tuoi file.
+ */
+
+// Utilità semplice per clamp
+const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+
+// Dati delle sezioni con immagini
+const SECTIONS = [
+  {
+    key: "hero",
+    title: "Marketplace globale per servizi con il drone",
+    subtitle: "Trova piloti certificati, richiedi riprese e rilievi dall’alto.",
+    image: "/images/hero.jpg", // TODO: sostituisci con la tua immagine hero
+  },
+  {
+    key: "immobili",
+    title: "Immobili",
+    subtitle: "Foto/video per case, ville e cantieri",
+    image: "/images/immobili.jpg",
+  },
+  {
+    key: "terreni",
+    title: "Terreni",
+    subtitle: "Confini, lotti non recintati, documentazione",
+    image: "/images/terreni.jpg",
+  },
+  {
+    key: "infrastrutture",
+    title: "Infrastrutture",
+    subtitle: "Tetti, ponti, pannelli solari, antenne",
+    image: "/images/infrastrutture.jpg",
+  },
+  {
+    key: "eventi",
+    title: "Eventi & promo",
+    subtitle: "Eventi privati, sportivi, turismo, brand",
+    image: "/images/eventi.jpg",
+  },
+];
 
 export default function Home() {
   const year = useMemo(() => new Date().getFullYear(), []);
+
+  // Refs per ogni sezione a tutta altezza
+  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const overlayRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Effetto: individua la sezione più vicina al centro viewport
+  useEffect(() => {
+    function onScroll() {
+      const mid = window.innerHeight / 2;
+      let bestIdx = 0;
+      let bestDist = Infinity;
+
+      sectionRefs.current.forEach((el, idx) => {
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const center = r.top + r.height / 2;
+        const dist = Math.abs(center - mid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestIdx = idx;
+        }
+      });
+      setActiveIndex(bestIdx);
+
+      // Oscura progressivamente le sezioni precedenti
+      overlayRefs.current.forEach((ov, idx) => {
+        if (!ov) return;
+        const gap = bestIdx - idx; // quante sezioni prima
+        const opacity = gap <= 0 ? 0 : clamp(0.25 + 0.25 * gap, 0, 0.75); // 0.25, 0.5, 0.75...
+        ov.style.opacity = String(opacity);
+      });
+    }
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  // Stato form
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState<null | "ok" | "err">(null);
-
-  const box: React.CSSProperties = {
-    border: "1px solid #e6e7eb",
-    borderRadius: 12,
-    padding: 16,
-    background: "#fff",
-  };
-
-  const input: React.CSSProperties = {
-    width: "100%",
-    border: "1px solid #cfd3d9",
-    borderRadius: 10,
-    padding: "10px 12px",
-    outline: "none",
-    fontSize: 14,
-    background: "#fff",
-  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,20 +106,16 @@ export default function Home() {
 
     const form = new FormData(e.currentTarget);
     const payload = Object.fromEntries(form.entries());
-
     try {
-      // API placeholder: create /api/lead on Next.js to forward to support@skylenor.com
-      // Fallback: if no API yet, we still show success and provide a mailto link below.
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) throw new Error("Send failed");
       setSent("ok");
       (e.currentTarget as HTMLFormElement).reset();
-    } catch (err) {
+    } catch (e) {
       setSent("err");
     } finally {
       setSending(false);
@@ -53,309 +123,212 @@ export default function Home() {
   }
 
   return (
-    <main style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 16px" }}>
-      {/* Header */}
+    <div style={{ background: "#fff", color: "#111" }}>
+      {/* Header sticky minimale */}
       <header
         style={{
           position: "sticky",
           top: 0,
-          background: "#fff",
-          zIndex: 20,
-          borderBottom: "1px solid #eef0f3",
-          marginBottom: 24,
+          zIndex: 40,
+          height: 60,
+          borderBottom: "1px solid #eceef1",
+          backdropFilter: "saturate(140%) blur(6px)",
+          background: "rgba(255,255,255,.7)",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            height: 64,
-            maxWidth: 1080,
-            margin: "0 auto",
-            padding: "0 16px",
-          }}
-        >
-          <div style={{ fontWeight: 800, fontSize: 22 }}>Skylenor</div>
-          <nav style={{ display: "flex", gap: 18, fontSize: 14 }}>
-            <a href="#servizi">Servizi</a>
-            <a href="#richiesta">Richiesta</a>
-            <a href="#diventa-operatore">Diventa operatore</a>
+        <div style={{ maxWidth: 1200, margin: "0 auto", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
+          <div style={{ fontWeight: 800, fontSize: 20 }}>Skylenor</div>
+          <nav style={{ display: "flex", gap: 16, fontSize: 14 }}>
+            <a href="#form">Richiesta</a>
+            <a href="#operatori">Operatore</a>
             <a href="#contatti">Contatti</a>
           </nav>
         </div>
       </header>
 
-      {/* Hero */}
-      <section style={{ marginTop: 16, marginBottom: 28 }}>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 1fr",
-          gap: 18,
-        }}>
-          <div>
-            <h1 style={{ fontSize: 42, lineHeight: 1.1, margin: "0 0 12px", fontWeight: 800 }}>
-              Marketplace globale per servizi con drone
-            </h1>
-            <p style={{ color: "#5b6470", margin: 0, fontSize: 16 }}>
-              Trova piloti certificati, richiedi riprese e rilievi dall’alto. Dalla
-              richiesta al file consegnato.
-            </p>
-            <div style={{ display: "flex", gap: 12, marginTop: 16, flexWrap: "wrap" }}>
-              <a
-                href="#richiesta"
-                style={{
-                  background: "black",
-                  color: "white",
-                  padding: "10px 16px",
-                  borderRadius: 10,
-                  textDecoration: "none",
-                  display: "inline-block",
-                  fontWeight: 600,
-                }}
-              >
-                Trova un operatore
-              </a>
-              <a
-                href="#diventa-operatore"
-                style={{
-                  padding: "10px 16px",
-                  borderRadius: 10,
-                  textDecoration: "none",
-                  border: "1px solid #cfd3d9",
-                  display: "inline-block",
-                  fontWeight: 600,
-                }}
-              >
-                Iscriviti come pilota
-              </a>
-            </div>
-            <div style={{ display: "flex", gap: 16, marginTop: 18, color: "#6b7280", fontSize: 13 }}>
-              <span>✔️ Piloti verificati</span>
-              <span>✔️ Permessi di volo gestiti da noi</span>
-              <span>✔️ Pagamenti sicuri</span>
-            </div>
-          </div>
-
-          {/* Video placeholder (puoi sostituire con il tuo) */}
-          <div style={{
-            borderRadius: 14,
-            overflow: "hidden",
-            border: "1px solid #e6e7eb",
-            background: "#0b0b0b",
-            aspectRatio: "16/9",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#d1d5db",
-            fontSize: 14,
-          }}>
-            <span>Video hero / showcase (16:9)</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Categorie */}
-      <section id="servizi" style={{ marginTop: 32 }}>
-        <h2 style={{ fontSize: 24, marginBottom: 12 }}>Categorie principali</h2>
-
-        <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))" }}>
-          {[
-            { t: "Immobili", d: "Foto/video per case, ville e cantieri" },
-            { t: "Terreni", d: "Confini, lotti non recintati, documentazione" },
-            { t: "Infrastrutture", d: "Tetti, antenne, ponti, pannelli solari" },
-            { t: "Eventi & Promo", d: "Eventi sportivi, turismo, brand" },
-          ].map((c) => (
-            <div key={c.t} style={box}>
-              <div style={{ fontWeight: 700 }}>{c.t}</div>
-              <div style={{ color: "#5b6470" }}>{c.d}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Form richiesta */}
-      <section id="richiesta" style={{ marginTop: 36 }}>
-        <h2 style={{ fontSize: 24, marginBottom: 10 }}>Fai una richiesta in 2 minuti</h2>
-        <p style={{ color: "#5b6470", marginTop: 0, marginBottom: 12, fontSize: 14 }}>
-          Compila il form: ti mettiamo in contatto con un operatore vicino alla zona indicata.
-        </p>
-
-        <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12, ...box }}>
-          <input name="location" placeholder="Località (es. Genova)" required style={input} />
-
-          <select name="service" defaultValue="" required style={input as React.CSSProperties}>
-            <option value="" disabled>
-              Seleziona servizio
-            </option>
-            <option>Riprese foto/video</option>
-            <option>Ispezione tetto/antenne</option>
-            <option>Rilievo confini/terreni</option>
-            <option>Evento/Promo</option>
-          </select>
-
-          <textarea name="details" placeholder="Descrivi il lavoro che ti serve..." rows={5} style={input} />
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <input name="name" type="text" placeholder="Nome" required style={input} />
-            <input name="email" type="email" placeholder="Email" required style={input} />
-          </div>
-
-          <button
-            type="submit"
-            disabled={sending}
+      {/* Wrapper scroll-snap */}
+      <main
+        style={{
+          scrollSnapType: "y mandatory",
+          overflowX: "hidden",
+        }}
+      >
+        {SECTIONS.map((s, idx) => (
+          <section
+            id={s.key}
+            key={s.key}
+            ref={(el) => (sectionRefs.current[idx] = el)}
             style={{
-              background: sending ? "#4b5563" : "black",
-              color: "white",
-              padding: "12px 16px",
-              borderRadius: 10,
-              border: 0,
-              cursor: sending ? "not-allowed" : "pointer",
-              fontWeight: 700,
+              position: "relative",
+              minHeight: "100svh",
+              width: "100%",
+              scrollSnapAlign: "start",
+              display: "grid",
+              placeItems: "center",
+              textAlign: "center",
+              color: "#fff",
+              isolation: "isolate",
             }}
           >
-            {sending ? "Invio in corso..." : "Invia richiesta"}
-          </button>
+            {/* Background immagine */}
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: `url(${s.image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                zIndex: -2,
+              }}
+            />
 
-          {sent === "ok" && (
-            <div style={{ color: "#065f46", fontSize: 14 }}>
-              ✅ Richiesta inviata! Ti risponderemo a breve da <b>support@skylenor.com</b>.
+            {/* Overlay scuro animato per le sezioni precedenti */}
+            <div
+              ref={(el) => (overlayRefs.current[idx] = el)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "#000",
+                opacity: 0,
+                transition: "opacity .35s ease",
+                zIndex: -1,
+              }}
+            />
+
+            {/* Testo */}
+            <div style={{ maxWidth: 920, padding: "0 16px" }}>
+              <h1 style={{ fontSize: idx === 0 ? 48 : 40, lineHeight: 1.08, margin: "0 0 10px", fontWeight: 800 }}>
+                {s.title}
+              </h1>
+              <p style={{ fontSize: 18, margin: 0, opacity: 0.95 }}>{s.subtitle}</p>
             </div>
-          )}
-          {sent === "err" && (
-            <div style={{ color: "#7f1d1d", fontSize: 14 }}>
-              ⚠️ Non sono riuscito a inviare tramite API. Invia direttamente una mail a
-              {" "}
-              <a href="mailto:support@skylenor.com?subject=Richiesta%20drone" style={{ fontWeight: 600 }}>
-                support@skylenor.com
+
+            {/* Dots di sezione (mobile friendly) */}
+            <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", gap: 8, justifyContent: "center" }}>
+              {SECTIONS.map((_, i) => (
+                <span
+                  key={`dot-${i}`}
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 99,
+                    background: i === activeIndex ? "rgba(255,255,255,.95)" : "rgba(255,255,255,.45)",
+                    transition: "background .25s",
+                  }}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {/* Sezione FORM */}
+        <section id="form" style={{ minHeight: "100svh", scrollSnapAlign: "start", display: "grid", placeItems: "center", padding: "56px 16px" }}>
+          <div style={{ maxWidth: 680, width: "100%", textAlign: "center" }}>
+            <h2 style={{ fontSize: 36, margin: "0 0 6px", fontWeight: 800 }}>Fai una richiesta</h2>
+            <p style={{ color: "#5b6470", marginTop: 0, marginBottom: 16 }}>
+              Compila il form: ti mettiamo in contatto con un operatore vicino alla tua zona.
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12, border: "1px solid #e6e7eb", borderRadius: 14, padding: 16 }}>
+              <input name="location" placeholder="Località (es. Genova)" required style={inputStyle} />
+              <select name="service" defaultValue="" required style={inputStyle as React.CSSProperties}>
+                <option value="" disabled>
+                  Seleziona il servizio
+                </option>
+                <option>Riprese foto/video</option>
+                <option>Ispezione tetto/antenne</option>
+                <option>Rilievo confini/terreni</option>
+                <option>Evento/Promo</option>
+              </select>
+              <textarea name="details" placeholder="Descrivi il lavoro da svolgere…" rows={5} style={inputStyle} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <input name="name" type="text" placeholder="Nome/Azienda" required style={inputStyle} />
+                <input name="email" type="email" placeholder="Email" required style={inputStyle} />
+              </div>
+              <button
+                type="submit"
+                disabled={sending}
+                style={{
+                  background: sending ? "#444" : "#111",
+                  color: "#fff",
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                  border: 0,
+                  cursor: sending ? "not-allowed" : "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                {sending ? "Invio in corso…" : "Invia richiesta"}
+              </button>
+
+              {sent === "ok" && (
+                <div style={{ color: "#065f46", fontSize: 14 }}>✅ Richiesta inviata! Ti abbiamo mandato anche una copia di cortesia.</div>
+              )}
+              {sent === "err" && (
+                <div style={{ color: "#7f1d1d", fontSize: 14 }}>
+                  ⚠️ Invio non riuscito. Scrivici direttamente a
+                  {" "}
+                  <a href="mailto:support@skylenor.com" style={{ fontWeight: 700 }}>
+                    support@skylenor.com
+                  </a>
+                  .
+                </div>
+              )}
+            </form>
+          </div>
+        </section>
+
+        {/* Sezione Operatore */}
+        <section id="operatori" style={{ minHeight: "85svh", scrollSnapAlign: "start", display: "grid", placeItems: "center", padding: "56px 16px" }}>
+          <div style={{ maxWidth: 800 }}>
+            <h2 style={{ fontSize: 36, fontWeight: 800, margin: "0 0 12px" }}>Diventa operatore</h2>
+            <div style={{ border: "1px solid #e6e7eb", borderRadius: 14, padding: 16 }}>
+              <p style={{ marginTop: 0 }}>
+                Sei un pilota con patentino e assicurazione? Registrati e indica la tua area di disponibilità. Pensiamo noi ai permessi di volo e alla burocrazia.
+              </p>
+              <ul style={{ margin: "0 0 12px 18px" }}>
+                <li>Documento d’identità</li>
+                <li>Patentino (in base alla categoria di drone)</li>
+                <li>Assicurazione RC</li>
+                <li>Registrazione ENAC/QR (Italia) o equivalente locale</li>
+              </ul>
+              <a href="mailto:support@skylenor.com?subject=Candidatura%20operatore%20drone" style={{ fontWeight: 700 }}>
+                Candidati ora → support@skylenor.com
               </a>
-              {" "}
-              allegando i dettagli.
             </div>
-          )}
+          </div>
+        </section>
+      </main>
 
-          <small style={{ color: "#5b6470" }}>
-            * Nella versione attuale il form prova a contattare <b>support@skylenor.com</b> tramite un’API
-            interna. Se l’API non è ancora configurata, usa il link email sopra.
-          </small>
-        </form>
-      </section>
-
-      {/* Diventa operatore */}
-      <section id="diventa-operatore" style={{ marginTop: 40 }}>
-        <h2 style={{ fontSize: 24, marginBottom: 10 }}>Diventa operatore</h2>
-        <div style={box}>
-          <p style={{ marginTop: 0 }}>
-            Sei un pilota con patentino e assicurazione? Registrati e indica la tua area di
-            disponibilità. Pensiamo noi ai permessi di volo e alla burocrazia.
-          </p>
-          <ul style={{ margin: "0 0 12px 18px" }}>
-            <li>Documento d’identità</li>
-            <li>Patentino (in base alla categoria di drone)</li>
-            <li>Assicurazione RC</li>
-            <li>Registrazione ENAC/QR (Italia) o equivalente locale</li>
-          </ul>
-          <a
-            href="mailto:support@skylenor.com?subject=Candidatura%20operatore%20drone"
-            style={{ textDecoration: "none", fontWeight: 700 }}
-          >
-            Candidati ora → support@skylenor.com
-          </a>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer id="contatti" style={{ marginTop: 48, padding: "24px 0", borderTop: "1px solid #e6e7eb", color: "#64748b", fontSize: 14 }}>
-        <div>© {year} Skylenor — “Osserva il mondo dall’alto”</div>
-        <div style={{ marginTop: 6 }}>
-          Contatto: <a href="mailto:support@skylenor.com">support@skylenor.com</a>
-        </div>
-        <div style={{ marginTop: 6, fontSize: 12 }}>
-          Note legali semplificate. Inserisci link a Termini, Privacy e Cookie.
+      <footer id="contatti" style={{ borderTop: "1px solid #eceef1", padding: "20px 16px", color: "#6b7280", fontSize: 14 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div>© {year} Skylenor — “Osserva il mondo dall’alto”</div>
+          <div style={{ marginTop: 6 }}>Contatto: <a href="mailto:support@skylenor.com">support@skylenor.com</a></div>
+          <div style={{ marginTop: 6, fontSize: 12 }}>Note legali semplificate. Inserisci link a Termini, Privacy e Cookie.</div>
         </div>
       </footer>
 
-      {/* Tiny helper styles */}
+      {/* Stili globali piccoli */}
       <style>{`
-        html {
-          scroll-behavior: smooth;
-          background: #fafafa;
-        }
-        a:hover { opacity: .85 }
-        @media (max-width: 880px) {
-          section > div[style*="grid-template-columns"] {
-            display: block !important;
-          }
+        html { scroll-behavior: smooth; }
+        a { color: inherit; text-decoration: none; }
+        a:hover { opacity: .85; }
+        @media (max-width: 900px) {
+          h1 { font-size: 34px !important; }
+          h2 { font-size: 28px !important; }
         }
       `}</style>
-    </main>
+    </div>
   );
 }
 
-// ---\n// API Route: /app/api/lead/route.ts (Next.js 13+)\n// Invia il form a support@skylenor.com usando Resend\n// ---\n
-export const runtime = "edge"; // opzionale, va bene anche default
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { name, email, location, service, details } = body || {};
-
-    if (!email || !location || !service) {
-      return new Response(JSON.stringify({ ok: false, error: "Missing fields" }), { status: 400 });
-    }
-
-    // 1) Validazioni minime
-    const clean = (v: string) => String(v || "").slice(0, 2000);
-    const msg = `Nuova richiesta dal sito Skylenor\n\n` +
-      `Nome: ${clean(name)}\n` +
-      `Email: ${clean(email)}\n` +
-      `Località: ${clean(location)}\n` +
-      `Servizio: ${clean(service)}\n` +
-      `Dettagli:\n${clean(details)}\n`;
-
-    // 2) Invio con Resend
-    const RESEND_API_KEY = process.env.RESEND_API_KEY!;
-    const to = "support@skylenor.com";
-
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Skylenor <no-reply@skylenor.com>",
-        to: [to],
-        subject: `Richiesta drone — ${clean(location)} / ${clean(service)}`,
-        text: msg,
-      }),
-    });
-
-    if (!res.ok) {
-      const txt = await res.text();
-      console.error("Resend error:", txt);
-      return new Response(JSON.stringify({ ok: false, error: "mail_failed" }), { status: 500 });
-    }
-
-    return new Response(JSON.stringify({ ok: true }), { status: 200 });
-  } catch (err) {
-    console.error(err);
-    return new Response(JSON.stringify({ ok: false, error: "server_error" }), { status: 500 });
-  }
-}
-
-/*
-SETUP RAPIDO EMAIL (Resend)
-1) Crea un account su Resend e genera una API Key → RESEND_API_KEY
-2) Verifica il dominio skylenor.com su Resend (aggiungi record DNS DKIM/return-path)
-3) In .env.local inserisci:
-   RESEND_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxx
-4) Struttura file (Next.js 13 App Router):
-   /app/page.tsx              ← la home che hai già
-   /app/api/lead/route.ts     ← questo file
-5) Deploy su Vercel o build locale. Prova il form: deve restituire ✅ e arrivare email a support@skylenor.com.
-
-Se preferisci evitare backend ora: puoi usare Formspree/Basin/Typedform. Basta cambiare l'azione del form
-con l'endpoint del servizio e arrivano le mail lo stesso (pro: zero codice, contro: meno controllo).
-*/
-
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  border: "1px solid #cfd3d9",
+  borderRadius: 12,
+  padding: "10px 12px",
+  outline: "none",
+  fontSize: 14,
+  background: "#fff",
+};
