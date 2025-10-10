@@ -1,21 +1,10 @@
 "use client";
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-/**
- * Skylenor – Home con effetti di scroll
- * - Sezioni a schermo intero (scroll-snap)
- * - La sezione precedente si oscura progressivamente mentre scorri
- * - Overlay testo (titolo + sottotitolo)
- * - Form collegato a /api/lead (single opt-in)
- *
- * Sostituisci gli URL delle immagini in `SECTIONS` con i tuoi file.
+/** 🔧 Config sezioni (titoli + immagini). 
+ *  NOTA: "infrastrutture .PNG" ha uno spazio nel nome, quindi usiamo %20.
+ *  Quando lo rinomini in "infrastrutture.PNG", aggiorna la stringa sotto.
  */
-
-// Utilità semplice per clamp
-const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
-
-// Dati delle sezioni con immagini
 const SECTIONS = [
   {
     key: "hero",
@@ -39,7 +28,8 @@ const SECTIONS = [
     key: "infrastrutture",
     title: "Infrastrutture",
     subtitle: "Tetti, ponti, pannelli solari, antenne",
-    image: "/images/infrastrutture.PNG",
+    // TODO: dopo il rename del file rimuovi %20
+    image: "/images/infrastrutture%20.PNG",
   },
   {
     key: "eventi",
@@ -48,42 +38,39 @@ const SECTIONS = [
     image: "/images/eventi.PNG",
   },
 ];
+
 export default function Home() {
-  const year = useMemo(() => new Date().getFullYear(), []);
+  const year = new Date().getFullYear();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const sectionRefs = useMemo(
+    () => SECTIONS.map(() => React.createRef<HTMLDivElement>()),
+    []
+  );
+  const [active, setActive] = useState(0);
 
-  // Refs per ogni sezione a tutta altezza
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const overlayRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  // Effetto: individua la sezione più vicina al centro viewport
+  // Rileva la sezione più vicina al centro viewport
   useEffect(() => {
     function onScroll() {
-      const mid = window.innerHeight / 2;
-      let bestIdx = 0;
-      let bestDist = Infinity;
-
-      sectionRefs.current.forEach((el, idx) => {
+      const mids: number[] = [];
+      sectionRefs.forEach((r) => {
+        const el = r.current;
         if (!el) return;
-        const r = el.getBoundingClientRect();
-        const center = r.top + r.height / 2;
-        const dist = Math.abs(center - mid);
-        if (dist < bestDist) {
-          bestDist = dist;
-          bestIdx = idx;
+        const rect = el.getBoundingClientRect();
+        const mid = Math.abs(rect.top + rect.height / 2 - window.innerHeight / 2);
+        mids.push(mid);
+      });
+      if (mids.length) {
+        let idx = 0;
+        let min = mids[0];
+        for (let i = 1; i < mids.length; i++) {
+          if (mids[i] < min) {
+            min = mids[i];
+            idx = i;
+          }
         }
-      });
-      setActiveIndex(bestIdx);
-
-      // Oscura progressivamente le sezioni precedenti
-      overlayRefs.current.forEach((ov, idx) => {
-        if (!ov) return;
-        const gap = bestIdx - idx; // quante sezioni prima
-        const opacity = gap <= 0 ? 0 : clamp(0.25 + 0.25 * gap, 0, 0.75); // 0.25, 0.5, 0.75...
-        ov.style.opacity = String(opacity);
-      });
+        setActive(idx);
+      }
     }
-
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
@@ -91,243 +78,283 @@ export default function Home() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [sectionRefs]);
 
-  // Stato form
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState<null | "ok" | "err">(null);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (sending) return;
-    setSending(true);
-    setSent(null);
-
-    const form = new FormData(e.currentTarget);
-    const payload = Object.fromEntries(form.entries());
-    try {
-      const res = await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Send failed");
-      setSent("ok");
-      (e.currentTarget as HTMLFormElement).reset();
-    } catch (e) {
-      setSent("err");
-    } finally {
-      setSending(false);
-    }
+    alert(
+      "Richiesta inviata (demo). Nella prossima versione invieremo una mail di conferma al cliente e a support@skylenor.com."
+    );
   }
 
   return (
-    <div style={{ background: "#fff", color: "#111" }}>
-      {/* Header sticky minimale */}
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 40,
-          height: 60,
-          borderBottom: "1px solid #eceef1",
-          backdropFilter: "saturate(140%) blur(6px)",
-          background: "rgba(255,255,255,.7)",
-        }}
-      >
-        <div style={{ maxWidth: 1200, margin: "0 auto", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
-          <div style={{ fontWeight: 800, fontSize: 20 }}>Skylenor</div>
-          <nav style={{ display: "flex", gap: 16, fontSize: 14 }}>
-            <a href="#form">Richiesta</a>
-            <a href="#operatori">Operatore</a>
-            <a href="#contatti">Contatti</a>
-          </nav>
-        </div>
+    <>
+      {/* Stili base della pagina */}
+      <style jsx global>{`
+        html,
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
+            Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+          color: #0f172a;
+          background: #ffffff;
+        }
+        a {
+          color: inherit;
+        }
+        .snap-wrap {
+          scroll-snap-type: y mandatory;
+        }
+        .snap {
+          scroll-snap-align: start;
+        }
+        .section {
+          height: 100vh;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          overflow: hidden;
+        }
+        .bg {
+          position: absolute;
+          inset: 0;
+          background-size: cover;
+          background-position: center;
+          transform: scale(1.02);
+        }
+        .overlay {
+          position: absolute;
+          inset: 0;
+          transition: opacity 400ms ease;
+          background: rgba(0, 0, 0, 0.6);
+          pointer-events: none;
+        }
+        .content {
+          position: relative;
+          z-index: 2;
+          color: #fff;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+          padding: 0 16px;
+          max-width: 900px;
+        }
+        .title {
+          font-weight: 800;
+          font-size: clamp(28px, 5.6vw, 54px);
+          line-height: 1.1;
+          margin: 0 0 8px;
+        }
+        .subtitle {
+          font-size: clamp(14px, 2.4vw, 22px);
+          opacity: 0.95;
+          margin: 0;
+        }
+        .header {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 56px;
+          background: rgba(255, 255, 255, 0.72);
+          -webkit-backdrop-filter: saturate(180%) blur(10px);
+          backdrop-filter: saturate(180%) blur(10px);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 16px;
+          z-index: 20;
+          border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+        }
+        .brand {
+          font-weight: 800;
+          font-size: 18px;
+          letter-spacing: 0.2px;
+        }
+        .menu {
+          font-size: 22px;
+          line-height: 1;
+        }
+        .dots {
+          position: absolute;
+          bottom: 20px;
+          left: 0;
+          right: 0;
+          display: flex;
+          gap: 8px;
+          justify-content: center;
+          z-index: 3;
+        }
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.6);
+          transition: transform 200ms ease, background 200ms ease;
+        }
+        .dot.active {
+          transform: scale(1.35);
+          background: #ffffff;
+        }
+        /* Form */
+        .form-wrap {
+          max-width: 820px;
+          margin: 56px auto 80px;
+          padding: 0 16px;
+        }
+        .form-title {
+          text-align: center;
+          font-size: clamp(22px, 4.2vw, 36px);
+          font-weight: 800;
+          margin: 18px 0 6px;
+        }
+        .form-sub {
+          text-align: center;
+          color: #475569;
+          margin: 0 0 16px;
+        }
+        .box {
+          border: 1px solid #e6e7eb;
+          border-radius: 12px;
+          padding: 16px;
+        }
+        .grid2 {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        @media (min-width: 640px) {
+          .grid2 {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+        .input,
+        .select,
+        .textarea,
+        .button {
+          width: 100%;
+          border-radius: 10px;
+          border: 1px solid #cfd3d9;
+          padding: 12px 12px;
+          font-size: 16px;
+          outline: none;
+        }
+        .textarea {
+          min-height: 120px;
+          resize: vertical;
+        }
+        .button {
+          background: #0b0b0b;
+          color: #fff;
+          border: 0;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .footer {
+          color: #64748b;
+          font-size: 14px;
+          border-top: 1px solid #e6e7eb;
+          padding: 20px 16px 40px;
+          text-align: center;
+        }
+      `}</style>
+
+      {/* Header */}
+      <header className="header">
+        <div className="brand">Skylenor</div>
+        <div className="menu">☰</div>
       </header>
 
-      {/* Wrapper scroll-snap */}
-      <main
-        style={{
-          scrollSnapType: "y mandatory",
-          overflowX: "hidden",
-        }}
-      >
-        {SECTIONS.map((s, idx) => (
+      {/* Sezioni full-screen con scroll-snap */}
+      <div ref={containerRef} className="snap-wrap" style={{ marginTop: 56 }}>
+        {SECTIONS.map((s, i) => (
           <section
-            id={s.key}
             key={s.key}
-            ref={(el) => (sectionRefs.current[idx] = el)}
-            style={{
-              position: "relative",
-              minHeight: "100svh",
-              width: "100%",
-              scrollSnapAlign: "start",
-              display: "grid",
-              placeItems: "center",
-              textAlign: "center",
-              color: "#fff",
-              isolation: "isolate",
-            }}
+            ref={sectionRefs[i]}
+            className="section snap"
+            aria-label={s.title}
           >
-            {/* Background immagine */}
             <div
-              aria-hidden
+              className="bg"
               style={{
-                position: "absolute",
-                inset: 0,
                 backgroundImage: `url(${s.image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                zIndex: -2,
               }}
             />
-
-            {/* Overlay scuro animato per le sezioni precedenti */}
+            {/* overlay: opaco per le sezioni già scorse */}
             <div
-              ref={(el) => (overlayRefs.current[idx] = el)}
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: "#000",
-                opacity: 0,
-                transition: "opacity .35s ease",
-                zIndex: -1,
-              }}
+              className="overlay"
+              style={{ opacity: i < active ? 0.6 : 0.0 }}
             />
-
-            {/* Testo */}
-            <div style={{ maxWidth: 920, padding: "0 16px" }}>
-              <h1 style={{ fontSize: idx === 0 ? 48 : 40, lineHeight: 1.08, margin: "0 0 10px", fontWeight: 800 }}>
-                {s.title}
-              </h1>
-              <p style={{ fontSize: 18, margin: 0, opacity: 0.95 }}>{s.subtitle}</p>
+            <div className="content">
+              <h1 className="title">{s.title}</h1>
+              <p className="subtitle">{s.subtitle}</p>
             </div>
 
-            {/* Dots di sezione (mobile friendly) */}
-            <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, display: "flex", gap: 8, justifyContent: "center" }}>
-              {SECTIONS.map((_, i) => (
-                <span
-                  key={`dot-${i}`}
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 99,
-                    background: i === activeIndex ? "rgba(255,255,255,.95)" : "rgba(255,255,255,.45)",
-                    transition: "background .25s",
-                  }}
-                />
+            {/* dots */}
+            <div className="dots">
+              {SECTIONS.map((_, j) => (
+                <div key={j} className={`dot ${j === i ? "active" : ""}`} />
               ))}
             </div>
           </section>
         ))}
+      </div>
 
-        {/* Sezione FORM */}
-        <section id="form" style={{ minHeight: "100svh", scrollSnapAlign: "start", display: "grid", placeItems: "center", padding: "56px 16px" }}>
-          <div style={{ maxWidth: 680, width: "100%", textAlign: "center" }}>
-            <h2 style={{ fontSize: 36, margin: "0 0 6px", fontWeight: 800 }}>Fai una richiesta</h2>
-            <p style={{ color: "#5b6470", marginTop: 0, marginBottom: 16 }}>
-              Compila il form: ti mettiamo in contatto con un operatore vicino alla tua zona.
-            </p>
+      {/* Form richiesta */}
+      <div className="form-wrap" id="richiesta">
+        <h2 className="form-title">Fai una richiesta</h2>
+        <p className="form-sub">
+          Compila il form: ti mettiamo in contatto con un operatore vicino alla
+          tua zona.
+        </p>
 
-            <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12, border: "1px solid #e6e7eb", borderRadius: 14, padding: 16 }}>
-              <input name="location" placeholder="Località (es. Genova)" required style={inputStyle} />
-              <select name="service" defaultValue="" required style={inputStyle as React.CSSProperties}>
-                <option value="" disabled>
-                  Seleziona il servizio
-                </option>
-                <option>Riprese foto/video</option>
-                <option>Ispezione tetto/antenne</option>
-                <option>Rilievo confini/terreni</option>
-                <option>Evento/Promo</option>
-              </select>
-              <textarea name="details" placeholder="Descrivi il lavoro da svolgere…" rows={5} style={inputStyle} />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <input name="name" type="text" placeholder="Nome/Azienda" required style={inputStyle} />
-                <input name="email" type="email" placeholder="Email" required style={inputStyle} />
-              </div>
-              <button
-                type="submit"
-                disabled={sending}
-                style={{
-                  background: sending ? "#444" : "#111",
-                  color: "#fff",
-                  padding: "12px 16px",
-                  borderRadius: 12,
-                  border: 0,
-                  cursor: sending ? "not-allowed" : "pointer",
-                  fontWeight: 700,
-                }}
-              >
-                {sending ? "Invio in corso…" : "Invia richiesta"}
-              </button>
+        <form onSubmit={handleSubmit} className="box" style={{ display: "grid", gap: 12 }}>
+          <input className="input" placeholder="Località (es. Genova)" required />
+          <select defaultValue="" required className="select">
+            <option value="" disabled>
+              Seleziona il servizio
+            </option>
+            <option>Riprese foto/video</option>
+            <option>Ispezione tetto/antenne</option>
+            <option>Rilievo confini/terreni</option>
+            <option>Evento/Promo</option>
+          </select>
+          <textarea className="textarea" placeholder="Descrivi il lavoro che ti serve…" />
 
-              {sent === "ok" && (
-                <div style={{ color: "#065f46", fontSize: 14 }}>✅ Richiesta inviata! Ti abbiamo mandato anche una copia di cortesia.</div>
-              )}
-              {sent === "err" && (
-                <div style={{ color: "#7f1d1d", fontSize: 14 }}>
-                  ⚠️ Invio non riuscito. Scrivici direttamente a
-                  {" "}
-                  <a href="mailto:support@skylenor.com" style={{ fontWeight: 700 }}>
-                    support@skylenor.com
-                  </a>
-                  .
-                </div>
-              )}
-            </form>
+          <div className="grid2">
+            <input className="input" type="text" placeholder="Nome/Azienda" required />
+            <input className="input" type="email" placeholder="Email" required />
           </div>
-        </section>
 
-        {/* Sezione Operatore */}
-        <section id="operatori" style={{ minHeight: "85svh", scrollSnapAlign: "start", display: "grid", placeItems: "center", padding: "56px 16px" }}>
-          <div style={{ maxWidth: 800 }}>
-            <h2 style={{ fontSize: 36, fontWeight: 800, margin: "0 0 12px" }}>Diventa operatore</h2>
-            <div style={{ border: "1px solid #e6e7eb", borderRadius: 14, padding: 16 }}>
-              <p style={{ marginTop: 0 }}>
-                Sei un pilota con patentino e assicurazione? Registrati e indica la tua area di disponibilità. Pensiamo noi ai permessi di volo e alla burocrazia.
-              </p>
-              <ul style={{ margin: "0 0 12px 18px" }}>
-                <li>Documento d’identità</li>
-                <li>Patentino (in base alla categoria di drone)</li>
-                <li>Assicurazione RC</li>
-                <li>Registrazione ENAC/QR (Italia) o equivalente locale</li>
-              </ul>
-              <a href="mailto:support@skylenor.com?subject=Candidatura%20operatore%20drone" style={{ fontWeight: 700 }}>
-                Candidati ora → support@skylenor.com
-              </a>
-            </div>
-          </div>
-        </section>
-      </main>
+          <button className="button" type="submit">Invia richiesta</button>
+          <small style={{ color: "#64748b" }}>
+            * Demo: il form mostra un alert. Nella prossima versione invieremo
+            la richiesta via email con conferma al cliente.
+          </small>
+        </form>
+      </div>
 
-      <footer id="contatti" style={{ borderTop: "1px solid #eceef1", padding: "20px 16px", color: "#6b7280", fontSize: 14 }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div>© {year} Skylenor — “Osserva il mondo dall’alto”</div>
-          <div style={{ marginTop: 6 }}>Contatto: <a href="mailto:support@skylenor.com">support@skylenor.com</a></div>
-          <div style={{ marginTop: 6, fontSize: 12 }}>Note legali semplificate. Inserisci link a Termini, Privacy e Cookie.</div>
+      {/* Diventa operatore + Footer */}
+      <div className="form-wrap">
+        <h2 className="form-title">Diventa operatore</h2>
+        <div className="box" style={{ lineHeight: 1.6 }}>
+          Sei un pilota con patentino e assicurazione? Registrati e indica la tua area di
+          disponibilità. Pensiamo noi ai permessi di volo e alla burocrazia.
+          <ul>
+            <li>Documento d’identità</li>
+            <li>Patentino (in base alla categoria di drone)</li>
+            <li>Assicurazione RC</li>
+            <li>Registrazione ENAC/QR o equivalente locale</li>
+          </ul>
+          <b>Candidati:</b> <a href="mailto:support@skylenor.com">support@skylenor.com</a>
         </div>
-      </footer>
+      </div>
 
-      {/* Stili globali piccoli */}
-      <style>{`
-        html { scroll-behavior: smooth; }
-        a { color: inherit; text-decoration: none; }
-        a:hover { opacity: .85; }
-        @media (max-width: 900px) {
-          h1 { font-size: 34px !important; }
-          h2 { font-size: 28px !important; }
-        }
-      `}</style>
-    </div>
+      <footer className="footer">
+        © {year} Skylenor — “Osserva il mondo dall’alto” · Contatto:{" "}
+        <a href="mailto:support@skylenor.com">support@skylenor.com</a>
+      </footer>
+    </>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  border: "1px solid #cfd3d9",
-  borderRadius: 12,
-  padding: "10px 12px",
-  outline: "none",
-  fontSize: 14,
-  background: "#fff",
-};
