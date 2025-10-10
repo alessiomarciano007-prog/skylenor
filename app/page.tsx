@@ -21,34 +21,33 @@ const SECTIONS = [
     key: "hero",
     title: "Marketplace globale per servizi con il drone",
     subtitle: "Trova piloti certificati, richiedi riprese e rilievi dall’alto.",
-    image: "/images/hero.jpg", // TODO: sostituisci con la tua immagine hero
+    image: "/images/hero.PNG",
   },
   {
     key: "immobili",
     title: "Immobili",
     subtitle: "Foto/video per case, ville e cantieri",
-    image: "/images/immobili.jpg",
+    image: "/images/immobili.JPG",
   },
   {
     key: "terreni",
     title: "Terreni",
     subtitle: "Confini, lotti non recintati, documentazione",
-    image: "/images/terreni.jpg",
+    image: "/images/terreni.JPG",
   },
   {
     key: "infrastrutture",
     title: "Infrastrutture",
     subtitle: "Tetti, ponti, pannelli solari, antenne",
-    image: "/images/infrastrutture.jpg",
+    image: "/images/infrastrutture.PNG",
   },
   {
     key: "eventi",
     title: "Eventi & promo",
     subtitle: "Eventi privati, sportivi, turismo, brand",
-    image: "/images/eventi.jpg",
+    image: "/images/eventi.PNG",
   },
 ];
-
 export default function Home() {
   const year = useMemo(() => new Date().getFullYear(), []);
 
