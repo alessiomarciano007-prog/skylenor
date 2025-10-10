@@ -1,14 +1,11 @@
-export const metadata = { title: "La nostra flotta • Skylenor" };
-
-export default function FlottaPage() {
+// app/flotta/page.tsx
+export default function Flotta() {
   return (
-    <main className="min-h-screen flex items-center justify-center p-10">
-      <div className="max-w-3xl text-center">
-        <h1 className="text-4xl font-bold mb-4">La nostra flotta</h1>
-        <p className="text-neutral-600">
-          Modelli di droni disponibili, specifiche tecniche e campi d’uso.
-        </p>
-      </div>
+    <main className="pt-14 px-6 py-10 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold">La nostra flotta</h1>
+      <p className="mt-3 text-neutral-600">
+        Qui presenteremo i modelli disponibili per le riprese (coming soon).
+      </p>
     </main>
   );
 }
