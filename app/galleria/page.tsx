@@ -1,8 +1,14 @@
-export default function Galleria() {
+export const metadata = { title: "Galleria progetti • Skylenor" };
+
+export default function GalleriaPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-16">
-      <h1 className="text-3xl font-bold mb-2">Galleria progetti</h1>
-      <p className="text-neutral-600">Qui in futuro caricheremo i lavori realizzati.</p>
+    <main className="min-h-screen flex items-center justify-center p-10">
+      <div className="max-w-3xl text-center">
+        <h1 className="text-4xl font-bold mb-4">Galleria progetti</h1>
+        <p className="text-neutral-600">
+          Qui pubblicheremo le nostre case history e i lavori completati.
+        </p>
+      </div>
     </main>
   );
 }
