@@ -1,60 +1,138 @@
-export default function Home() {
+// app/page.tsx
+'use client';
+import Image from 'next/image';
+import { useEffect, useRef } from 'react';
+
+type Section = {
+  id: string;
+  title: string;
+  subtitle: string;
+  img: string;
+};
+
+const sections: Section[] = [
+  {
+    id: 'immobili',
+    title: 'Immobili',
+    subtitle: 'Foto/video per case, ville e cantieri',
+    img: '/images/immobili.jpg',
+  },
+  {
+    id: 'terreni',
+    title: 'Terreni',
+    subtitle: 'Confini, lotti non recintati, documentazione',
+    img: '/images/terreni.jpg',
+  },
+  {
+    id: 'infrastrutture',
+    title: 'Infrastrutture',
+    subtitle: 'Tetti, ponti, pannelli solari, antenne',
+    img: '/images/infrastrutture.jpg',
+  },
+  {
+    id: 'eventi',
+    title: 'Eventi & promo',
+    subtitle: 'Eventi privati, sportivi, turismo, brand',
+    img: '/images/eventi.jpg',
+  },
+];
+
+export default function HomePage() {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // IntersectionObserver: la sezione in viewport riceve [data-active="true"]
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-watch]'));
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          e.target.setAttribute('data-active', String(e.isIntersecting));
+        });
+      },
+      { rootMargin: '-30% 0px -50% 0px', threshold: 0.2 }
+    );
+
+    items.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <main className="pt-14 leading-none">
-      <section className="relative">
-        <img
+    <main ref={rootRef}>
+      {/* HERO */}
+      <section className="relative aspect-[16/10] md:aspect-[16/7] overflow-hidden">
+        <Image
           src="/images/hero.jpg"
           alt="Campo ripreso dall'alto"
-          className="w-full h-[75svh] md:h-[85svh] object-cover select-none"
-          draggable={false}
+          fill
+          priority
+          className="object-cover"
         />
-        <div className="absolute inset-0 flex items-center justify-center text-center px-6">
-          <div className="max-w-3xl">
-            <h1 className="text-white drop-shadow-lg font-extrabold text-3xl sm:text-5xl md:text-6xl">
-              Marketplace globale per servizi con il drone
+        <div className="absolute inset-0 bg-neutral-900/20" />
+        <div className="absolute inset-0 flex items-center justify-center text-center px-4">
+          <div className="text-white drop-shadow-xl">
+            <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
+              Marketplace globale per servizi<br />con il drone
             </h1>
-            <p className="mt-4 text-white/90 drop-shadow text-base md:text-lg">
+            <p className="mt-4 text-base md:text-lg font-medium opacity-95">
               Trova piloti certificati, richiedi riprese e rilievi dall’alto.
             </p>
           </div>
         </div>
-        <div className="section-fade" />
       </section>
 
-      {[
-        { src: "/images/immobili.jpg", alt: "Tetti e immobili" },
-        { src: "/images/terreni.jpg", alt: "Terreni" },
-        { src: "/images/infrastrutture.jpg", alt: "Infrastrutture" },
-        { src: "/images/eventi.jpg", alt: "Eventi" },
-      ].map((img) => (
-        <section key={img.src} className="-mt-px relative">
-          <img
-            src={img.src}
-            alt={img.alt}
-            className="w-full h-[70svh] md:h-[80svh] object-cover select-none"
-            draggable={false}
-          />
-          <div className="section-fade" />
-        </section>
-      ))}
+      {/* LABEL CATEGORIE */}
+      <div className="mx-auto max-w-6xl px-4 py-6 md:py-8">
+        <h2 className="text-center text-lg md:text-xl font-semibold">Categorie principali</h2>
+      </div>
 
-      <section id="contatti" className="-mt-px px-6 py-16 md:py-24 bg-white">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-2xl md:text-3xl font-bold">Contatti</h2>
-          <p className="mt-3 text-neutral-600">
-            Scrivici per preventivi, partnership o informazioni.
-          </p>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            <a href="mailto:hello@skylenor.com" className="block p-5 rounded-xl border hover:bg-neutral-50">
-              <div className="font-medium">Email</div>
-              <div className="text-neutral-600">hello@skylenor.com</div>
-            </a>
-            <a href="tel:+39000000000" className="block p-5 rounded-xl border hover:bg-neutral-50">
-              <div className="font-medium">Telefono</div>
-              <div className="text-neutral-600">+39 000 000 000</div>
-            </a>
+      {/* SEZIONI CON TITOLO SOPRA L’IMMAGINE */}
+      <div className="space-y-6 md:space-y-10">
+        {sections.map((s) => (
+          <section
+            key={s.id}
+            id={s.id}
+            data-watch
+            data-active="false"
+            className="fade-section relative aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-none md:rounded-2xl"
+          >
+            <Image src={s.img} alt={s.title} fill className="object-cover transition-[filter] duration-500" />
+            {/* overlay testo */}
+            <div className="absolute inset-0 flex items-center justify-center text-center px-4">
+              <div className="text-white drop-shadow-xl">
+                <h3 className="text-3xl md:text-5xl font-extrabold">{s.title}</h3>
+                <p className="mt-3 text-lg md:text-2xl font-semibold opacity-95">{s.subtitle}</p>
+              </div>
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {/* FORM CONTATTI (rimane in fondo) */}
+      <section id="contatti" className="mx-auto max-w-3xl px-4 py-14 md:py-20">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-center">Fai una richiesta</h2>
+        <p className="text-center mt-3 text-neutral-600">
+          Compila il form: ti mettiamo in contatto con un operatore vicino alla tua zona
+        </p>
+
+        <form className="mt-8 space-y-4">
+          <input className="input" placeholder="Località (es. Genova)" />
+          <select className="input">
+            <option value="">Seleziona il servizio</option>
+            <option>Immobili</option>
+            <option>Terreni</option>
+            <option>Infrastrutture</option>
+            <option>Eventi & promo</option>
+          </select>
+          <textarea className="input h-40" placeholder="Descrivi il lavoro da svolgere…" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input className="input" placeholder="Nome/Azienda" />
+            <input className="input" placeholder="Email" type="email" />
           </div>
-        </div>
+          <button className="btn-primary w-full">Invia richiesta</button>
+        </form>
       </section>
     </main>
   );
