@@ -1,39 +1,29 @@
-/* scroll dolce */
-:root { scroll-behavior: smooth; }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Entrata morbida delle sezioni mentre scorri */
-.reveal {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity .6s ease, transform .6s ease;
+/* Reset minimi utili */
+html, body {
+  height: 100%;
 }
-.reveal.show {
-  opacity: 1;
-  transform: none;
+body {
+  @apply bg-white text-neutral-900 antialiased;
 }
 
-/* Utility: nasconde i “tagli” fra le sezioni con una sfumatura */
-.fade-top {
-  position: absolute; inset: 0 auto auto 0;
-  height: 72px; width: 100%;
-  background: linear-gradient(to top, transparent 0%, rgba(0,0,0,.35) 100%);
+/* Rimuove spazi/padding indesiderati sulle immagini full-bleed */
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Utility per sfumatura tra sezioni (evita la “riga” di stacco) */
+.section-fade {
   pointer-events: none;
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2rem; /* ~8 in tailwind */
+  background-image: linear-gradient(to bottom, transparent, white);
 }
-.fade-bottom {
-  position: absolute; inset: auto 0 0 0;
-  height: 96px; width: 100%;
-  background: linear-gradient(to bottom, transparent 0%, #fff 100%);
-  pointer-events: none;
-}
-
-/* header sticky con sfondo sfumato leggero */
-.header-blur {
-  backdrop-filter: saturate(180%) blur(8px);
-  background: linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,.55));
-}
-
-/* Evita linee sottili tra sezioni su alcuni browser */
-img, video, canvas { display:block; }
-
-/* Antialias generale testi */
-html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
