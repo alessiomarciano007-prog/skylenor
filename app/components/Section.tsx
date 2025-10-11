@@ -7,39 +7,31 @@ type Props = {
 };
 
 export default function Section({ children, className }: Props) {
+  const topGradient = {
+    background:
+      "linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.92) 22%, rgba(255,255,255,0.65) 55%, rgba(255,255,255,0.25) 82%, rgba(255,255,255,0) 100%)",
+  } as React.CSSProperties;
+
+  const bottomGradient = {
+    background:
+      "linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.92) 22%, rgba(255,255,255,0.65) 55%, rgba(255,255,255,0.25) 82%, rgba(255,255,255,0) 100%)",
+  } as React.CSSProperties;
+
   return (
     <section className={`relative w-full overflow-hidden ${className ?? ""}`}>
-      {/* Contenuto principale */}
+      {/* Contenuto */}
       <div className="relative z-0">{children}</div>
 
       {/* Sfumatura in alto */}
       <div
-        className="
-          pointer-events-none absolute inset-x-0 top-0 z-20
-          h-[160px] sm:h-[180px]
-          bg-[linear-gradient(to_bottom,
-            rgba(255,255,255,1)_0%,
-            rgba(255,255,255,0.9)_25%,
-            rgba(255,255,255,0.6)_55%,
-            rgba(255,255,255,0.2)_85%,
-            rgba(255,255,255,0)_100%
-          )]
-        "
+        className="pointer-events-none absolute inset-x-0 top-0 z-50 h-[170px] sm:h-[190px]"
+        style={topGradient}
       />
 
       {/* Sfumatura in basso */}
       <div
-        className="
-          pointer-events-none absolute inset-x-0 bottom-0 z-20
-          h-[160px] sm:h-[180px]
-          bg-[linear-gradient(to_top,
-            rgba(255,255,255,1)_0%,
-            rgba(255,255,255,0.9)_25%,
-            rgba(255,255,255,0.6)_55%,
-            rgba(255,255,255,0.2)_85%,
-            rgba(255,255,255,0)_100%
-          )]
-        "
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-50 h-[170px] sm:h-[190px]"
+        style={bottomGradient}
       />
     </section>
   );
