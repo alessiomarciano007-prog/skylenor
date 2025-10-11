@@ -16,9 +16,9 @@ export default function Section({ children, className, fade = 180 }: Props) {
 const mask = `linear-gradient(
   to bottom,
   rgba(0,0,0,0) 0%,
-  rgba(0,0,0,0.4) 25%,
+  rgba(0,0,0,0.4) 15%,
   #000 25%,
-  #000 85%,
+  #000 75%,
   rgba(0,0,0,0.4) 85%,
   rgba(0,0,0,0) 100%
 )`;
