@@ -24,7 +24,7 @@ export default function Section({ children, className }: Props) {
 
       {/* Sfumatura in alto */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[100px] sm:h-[190px]"
+        className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[60px] sm:h-[190px]"
         style={topGradient}
       />
 
