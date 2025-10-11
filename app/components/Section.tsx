@@ -24,13 +24,13 @@ export default function Section({ children, className }: Props) {
 
       {/* Sfumatura in alto */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-500 h-[60px] sm:h-[190px]"
+        className="pointer-events-none absolute inset-x-0 top-0 z-50 h-[60px] sm:h-[60px]"
         style={topGradient}
       />
 
       {/* Sfumatura in basso */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-500 h-[60px] sm:h-[190px]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-50 h-[60px] sm:h-[60px]"
         style={bottomGradient}
       />
     </section>
