@@ -6,73 +6,44 @@ type Props = {
   className?: string;
 };
 
-// piccolo SVG di noise come data URI (serve per eliminare il banding)
-const NOISE =
-  "data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'>\
-  <filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter>\
-  <rect width='100%' height='100%' filter='url(%23n)' opacity='0.035'/>\
-</svg>";
-
+/**
+ * Questa versione usa la CSS mask per far sfumare
+ * l'immagine in modo naturale verso lo sfondo bianco,
+ * senza quell’effetto “appannato” che si vedeva prima.
+ */
 export default function Section({ children, className }: Props) {
-  // gradiente più morbido, tanti stop ravvicinati
-  const topGradient: React.CSSProperties = {
-    background:
-      "linear-gradient(to bottom, \
-        rgba(255,255,255,1) 0%, \
-        rgba(255,255,255,0.98) 12%, \
-        rgba(255,255,255,0.93) 25%, \
-        rgba(255,255,255,0.82) 37%, \
-        rgba(255,255,255,0.68) 50%, \
-        rgba(255,255,255,0.48) 63%, \
-        rgba(255,255,255,0.28) 76%, \
-        rgba(255,255,255,0.12) 88%, \
-        rgba(255,255,255,0) 100%)",
-    backdropFilter: "blur(1.5px)", // aiuta a fondere i bordi
+  const fadeH = "160px"; // altezza della sfumatura
+
+  const topMask: React.CSSProperties = {
+    WebkitMaskImage:
+      `linear-gradient(to bottom, black 0%, black 25%, rgba(0,0,0,0) 100%)`,
+    maskImage:
+      `linear-gradient(to bottom, black 0%, black 25%, rgba(0,0,0,0) 100%)`,
   };
 
-  const bottomGradient: React.CSSProperties = {
-    background:
-      "linear-gradient(to top, \
-        rgba(255,255,255,1) 0%, \
-        rgba(255,255,255,0.98) 12%, \
-        rgba(255,255,255,0.93) 25%, \
-        rgba(255,255,255,0.82) 37%, \
-        rgba(255,255,255,0.68) 50%, \
-        rgba(255,255,255,0.48) 63%, \
-        rgba(255,255,255,0.28) 76%, \
-        rgba(255,255,255,0.12) 88%, \
-        rgba(255,255,255,0) 100%)",
-    backdropFilter: "blur(1.5px)",
-  };
-
-  const noiseStyle: React.CSSProperties = {
-    backgroundImage: `url("${NOISE}")`,
-    backgroundRepeat: "repeat",
-    opacity: 0.25, // rumore molto leggero
-    mixBlendMode: "normal",
+  const bottomMask: React.CSSProperties = {
+    WebkitMaskImage:
+      `linear-gradient(to top, black 0%, black 25%, rgba(0,0,0,0) 100%)`,
+    maskImage:
+      `linear-gradient(to top, black 0%, black 25%, rgba(0,0,0,0) 100%)`,
   };
 
   return (
     <section className={`relative w-full overflow-hidden ${className ?? ""}`}>
-      {/* Contenuto */}
+      {/* Contenuto della sezione */}
       <div className="relative z-0">{children}</div>
 
-      {/* Sfumatura in alto + noise */}
+      {/* Fade superiore */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-50 h-[60px] sm:h-[60px]"
-        style={topGradient}
-      >
-        <div className="absolute inset-0" style={noiseStyle} />
-      </div>
+        className="pointer-events-none absolute inset-x-0 top-0 z-50"
+        style={{ ...topMask, height: fadeH }}
+      />
 
-      {/* Sfumatura in basso + noise */}
+      {/* Fade inferiore */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-50 h-[60px] sm:h-[60px]"
-        style={bottomGradient}
-      >
-        <div className="absolute inset-0" style={noiseStyle} />
-      </div>
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-50"
+        style={{ ...bottomMask, height: fadeH }}
+      />
     </section>
   );
 }
