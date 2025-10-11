@@ -17,9 +17,9 @@ export default function Section({ children, className, fade = 180 }: Props) {
     to bottom,
     rgba(0,0,0,0) 0%,
     rgba(0,0,0,0.4) 25%,
-    #000 25%,
-    #000 35%,
-    rgba(0,0,0,0.6) 75%,
+    #000 45%,
+    #000 55%,
+    rgba(0,0,0,0.4) 75%,
     rgba(0,0,0,0) 100%
   )`;
 
