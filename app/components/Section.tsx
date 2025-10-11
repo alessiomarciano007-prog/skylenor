@@ -17,7 +17,7 @@ export default function Section({ children, className, fade = 180 }: Props) {
     rgba(255,255,255,0.24) 6%,
     rgba(255,255,255,0.42) 8%,
     rgba(255,255,255,0.67) 10%,
-    rgba(255,255,255,0.95) 12%,
+    rgba(255,255,255,0.99) 12%,
     #ffffff                 50%,
     rgba(255,255,255,0.95) 83%,
     rgba(255,255,255,0.78) 85%,
