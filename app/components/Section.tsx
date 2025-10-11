@@ -4,46 +4,43 @@ import React from "react";
 type Props = {
   children: React.ReactNode;
   className?: string;
+  /** altezza sfumatura in px (top e bottom) */
+  fade?: number;
 };
 
 /**
- * Questa versione usa la CSS mask per far sfumare
- * l'immagine in modo naturale verso lo sfondo bianco,
- * senza quell’effetto “appannato” che si vedeva prima.
+ * Applica una CSS mask direttamente al contenuto della sezione.
+ * Il contenuto sfuma verso trasparente ai bordi top/bottom,
+ * lasciando vedere lo sfondo (bianco) della pagina.
  */
-export default function Section({ children, className }: Props) {
-  const fadeH = "160px"; // altezza della sfumatura
-
-  const topMask: React.CSSProperties = {
-    WebkitMaskImage:
-      `linear-gradient(to bottom, black 0%, black 25%, rgba(0,0,0,0) 100%)`,
-    maskImage:
-      `linear-gradient(to bottom, black 0%, black 25%, rgba(0,0,0,0) 100%)`,
-  };
-
-  const bottomMask: React.CSSProperties = {
-    WebkitMaskImage:
-      `linear-gradient(to top, black 0%, black 25%, rgba(0,0,0,0) 100%)`,
-    maskImage:
-      `linear-gradient(to top, black 0%, black 25%, rgba(0,0,0,0) 100%)`,
-  };
+export default function Section({ children, className, fade = 160 }: Props) {
+  const mask = `linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0%,
+    #000 ${fade * 0.35}px,
+    #000 calc(100% - ${fade * 0.35}px),
+    rgba(0,0,0,0) 100%
+  )`;
 
   return (
-    <section className={`relative w-full overflow-hidden ${className ?? ""}`}>
-      {/* Contenuto della sezione */}
-      <div className="relative z-0">{children}</div>
-
-      {/* Fade superiore */}
+    <section className={`relative w-full ${className ?? ""}`}>
+      {/* il wrapper con la mask: QUI avviene la sfumatura */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-50"
-        style={{ ...topMask, height: fadeH }}
-      />
+        className="relative z-0"
+        style={{
+          WebkitMaskImage: mask,
+          maskImage: mask,
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskSize: "100% 100%",
+          maskSize: "100% 100%",
+        }}
+      >
+        {children}
+      </div>
 
-      {/* Fade inferiore */}
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-50"
-        style={{ ...bottomMask, height: fadeH }}
-      />
+      {/* Fallback super leggero per browser senza mask (quasi invisibile) */}
+      <noscript />
     </section>
   );
 }
