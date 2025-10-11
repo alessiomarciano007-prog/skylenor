@@ -11,11 +11,33 @@ export default function Section({ children, className }: Props) {
     <section className={`relative w-full overflow-hidden ${className ?? ""}`}>
       {children}
 
-      {/* sfumatura in alto (più morbida) */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 sm:h-32 bg-gradient-to-b from-white via-white/70 to-transparent" />
+      {/* SFUMATURA IN ALTO (corta e morbida) */}
+      <div
+        className="
+          pointer-events-none absolute inset-x-0 top-0
+          h-[90px] sm:h-[110px]       /* <— altezza della fascia sopra */
+          bg-[linear-gradient(to_bottom,
+            rgba(255,255,255,1)_0%,
+            rgba(255,255,255,0.92)_35%,
+            rgba(255,255,255,0.65)_70%,
+            rgba(255,255,255,0)_100%
+          )]
+        "
+      />
 
-      {/* sfumatura in basso (più lunga e omogenea) */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-b from-transparent via-white/80 to-white" />
+      {/* SFUMATURA IN BASSO (corta e morbida) */}
+      <div
+        className="
+          pointer-events-none absolute inset-x-0 bottom-0
+          h-[110px] sm:h-[130px]      /* <— altezza della fascia sotto (la “blu”) */
+          bg-[linear-gradient(to_top,
+            rgba(255,255,255,1)_0%,
+            rgba(255,255,255,0.92)_35%,
+            rgba(255,255,255,0.65)_70%,
+            rgba(255,255,255,0)_100%
+          )]
+        "
+      />
     </section>
   );
 }
