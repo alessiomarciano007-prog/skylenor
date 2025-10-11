@@ -76,9 +76,9 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* Divisore sfumato che collega visivamente le due sezioni */}
+{/* Divisore sfumato più morbido */}
 {idx < sections.length - 1 && (
-  <div className="h-24 sm:h-32 w-full bg-gradient-to-b from-transparent via-white/80 to-white" />
+  <div className="h-32 sm:h-40 w-full bg-gradient-to-b from-transparent via-white/70 to-white" />
 )}
         </React.Fragment>
       ))}
