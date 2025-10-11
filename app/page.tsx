@@ -1,5 +1,47 @@
+"use client";
+
 import Section from "./components/Section";
-// ...tuo array sections[...]
+import ContactForm from "./components/ContactForm"; // correggi il path se diverso
+
+type SectionItem = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  image: string;
+};
+
+const sections: SectionItem[] = [
+  {
+    id: "hero",
+    title: "Marketplace globale per servizi con il drone",
+    subtitle: "Trova piloti certificati, richiedi riprese e rilievi dall’alto.",
+    image: "/images/hero.jpg",
+  },
+  {
+    id: "immobili",
+    title: "Immobili",
+    subtitle: "Foto/video per case, ville e cantieri",
+    image: "/images/immobili.jpg",
+  },
+  {
+    id: "terreni",
+    title: "Terreni",
+    subtitle: "Confini, lotti non recintati, documentazione",
+    image: "/images/terreni.jpg",
+  },
+  {
+    id: "infrastrutture",
+    title: "Infrastrutture",
+    subtitle: "Tetti, aponTi, pannelli solari, antenne",
+    image: "/images/infrastrutture.jpg",
+  },
+  {
+    id: "eventi",
+    title: "Eventi & promo",
+    subtitle: "Eventi privati, sportivi, turismo, brand",
+    image: "/images/eventi.jpg",
+  },
+];
 
 export default function HomePage() {
   const hero = sections[0];
@@ -7,7 +49,7 @@ export default function HomePage() {
 
   return (
     <main>
-      {/* HERO: niente fade in alto, il contenuto sbiadisce quando esce */}
+      {/* HERO: contenuto che si sfuma, NO sfumatura bianca in alto */}
       <Section disableTopFade>
         <div
           id={hero.id}
@@ -28,7 +70,7 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* Sezioni successive: fade bianchi fissi + sbiadimento dinamico del contenuto */}
+      {/* SEZIONI successive: fade bianchi fissi + sbiadimento dinamico del contenuto */}
       {rest.map((s) => (
         <Section key={s.id}>
           <div
@@ -40,6 +82,7 @@ export default function HomePage() {
               backgroundPosition: "center",
             }}
           >
+            {/* leggera sfumatura sopra l'immagine per il testo */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/40 to-white" />
             <div className="relative z-10 text-center px-4">
               <h2 className="text-4xl sm:text-5xl font-extrabold">{s.title}</h2>
@@ -51,7 +94,7 @@ export default function HomePage() {
         </Section>
       ))}
 
-      {/* form contatti */}
+      {/* FORM contatti */}
       <ContactForm />
     </main>
   );
