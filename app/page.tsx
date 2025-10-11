@@ -47,26 +47,29 @@ export default function HomePage() {
 
   return (
     <main>
-      {/* HERO (non avvolgiamo in <Section> per non mettere fade in alto) */}
-      <div
-        id={hero.id}
-        className="relative h-screen flex flex-col items-center justify-center text-white"
-        style={{
-          backgroundImage: `url(${hero.image})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 text-center px-4">
-          <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight">
-            {hero.title}
-          </h1>
-          <p className="mt-4 text-lg sm:text-xl opacity-95">{hero.subtitle}</p>
+      {/* HERO con fade dinamico ma senza sfumatura bianca in alto */}
+      <Section disableTopFade>
+        <div
+          id={hero.id}
+          className="relative h-screen flex flex-col items-center justify-center text-white"
+          style={{
+            backgroundImage: `url(${hero.image})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          {/* leggero velo per leggibilità */}
+          <div className="absolute inset-0 bg-black/25" />
+          <div className="relative z-10 text-center px-4">
+            <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight">
+              {hero.title}
+            </h1>
+            <p className="mt-4 text-lg sm:text-xl opacity-95">{hero.subtitle}</p>
+          </div>
         </div>
-      </div>
+      </Section>
 
-      {/* SEZIONI successive con fade bianco tra una e l’altra */}
+      {/* Sezioni successive (il fade top/bottom lo aggiunge <Section>) */}
       {rest.map((section) => (
         <Section key={section.id}>
           <div
@@ -78,8 +81,7 @@ export default function HomePage() {
               backgroundPosition: "center",
             }}
           >
-            {/* leggera sfumatura che aiuta la lettura del testo */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/40 to-white" />
+            <div className="absolute inset-0 bg-black/20" />
             <div className="relative z-10 text-center px-4">
               <h2 className="text-4xl sm:text-5xl font-extrabold">{section.title}</h2>
               {section.subtitle && (
@@ -90,7 +92,6 @@ export default function HomePage() {
         </Section>
       ))}
 
-      {/* FORM contatti in fondo */}
       <ContactForm />
     </main>
   );
