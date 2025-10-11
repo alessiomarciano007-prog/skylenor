@@ -4,33 +4,37 @@ import React from "react";
 type Props = {
   children: React.ReactNode;
   className?: string;
+  fade?: number;
 };
 
-export default function Section({ children, className }: Props) {
+export default function Section({ children, className, fade = 180 }: Props) {
+  // Gradiente molto più morbido e distribuito
+  const mask = `linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,0.25) 25%,
+    rgba(0,0,0,0.45) 40%,
+    rgba(0,0,0,0.55) 55%,
+    rgba(0,0,0,0.45) 70%,
+    rgba(0,0,0,0.25) 85%,
+    rgba(0,0,0,0) 100%
+  )`;
+
   return (
     <section className={`relative w-full ${className ?? ""}`}>
-      {/* Contenuto della sezione */}
-      <div className="relative z-10">{children}</div>
-
-      {/* Sfumatura più morbida e distribuita */}
       <div
-        className="pointer-events-none absolute inset-0 z-0"
+        className="relative z-0"
         style={{
-          background: `linear-gradient(
-            to bottom,
-            rgba(255,255,255,0)   0%,
-            rgba(255,255,255,0.05) 20%,
-            rgba(255,255,255,0.12) 35%,
-            rgba(255,255,255,0.25) 45%,
-            rgba(255,255,255,0.4)  55%,
-            rgba(255,255,255,0.55) 65%,
-            rgba(255,255,255,0.7)  75%,
-            rgba(255,255,255,0.85) 85%,
-            rgba(255,255,255,0.95) 92%,
-            rgba(255,255,255,1)    100%
-          )`,
+          WebkitMaskImage: mask,
+          maskImage: mask,
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskSize: "100% 100%",
+          maskSize: "100% 100%",
         }}
-      />
+      >
+        {children}
+      </div>
     </section>
   );
 }
