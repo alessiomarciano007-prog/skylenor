@@ -13,8 +13,8 @@ const mask = `linear-gradient(
   to bottom,
   rgba(255,255,255,0) 0%,       /* visibile all'inizio */
   rgba(255,255,255,0.4) 5%,     /* leggero fade sopra */
-  rgba(255,255,255,1) 15%,      /* bianco pieno breve */
-  rgba(255,255,255,1) 85%,      /* rimane visibile */
+  rgba(255,255,255,1) 45%,      /* bianco pieno breve */
+  rgba(255,255,255,1) 65%,      /* rimane visibile */
   rgba(255,255,255,0.4) 95%,    /* leggero fade sotto */
   rgba(255,255,255,0) 100%      /* torna visibile in fondo */
 )`;
