@@ -4,27 +4,27 @@ import React from "react";
 type Props = {
   children: React.ReactNode;
   className?: string;
-  /** altezza sfumatura in px (top e bottom) */
   fade?: number;
 };
 
 /**
- * Applica una CSS mask direttamente al contenuto della sezione.
- * Il contenuto sfuma verso trasparente ai bordi top/bottom,
- * lasciando vedere lo sfondo (bianco) della pagina.
+ * Variante più morbida della sfumatura.
+ * Il gradiente è distribuito su un’area più ampia,
+ * evitando la "riga bianca" al centro.
  */
-export default function Section({ children, className, fade = 160 }: Props) {
+export default function Section({ children, className, fade = 180 }: Props) {
   const mask = `linear-gradient(
     to bottom,
     rgba(0,0,0,0) 0%,
-    #000 ${fade * 0.35}px,
-    #000 calc(100% - ${fade * 0.35}px),
+    rgba(0,0,0,0.6) 15%,
+    #000 35%,
+    #000 65%,
+    rgba(0,0,0,0.6) 85%,
     rgba(0,0,0,0) 100%
   )`;
 
   return (
     <section className={`relative w-full ${className ?? ""}`}>
-      {/* il wrapper con la mask: QUI avviene la sfumatura */}
       <div
         className="relative z-0"
         style={{
@@ -38,9 +38,6 @@ export default function Section({ children, className, fade = 160 }: Props) {
       >
         {children}
       </div>
-
-      {/* Fallback super leggero per browser senza mask (quasi invisibile) */}
-      <noscript />
     </section>
   );
 }
