@@ -2,28 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Reset minimi utili */
-html, body {
-  height: 100%;
-}
-body {
-  @apply bg-white text-neutral-900 antialiased;
-}
-
-/* Rimuove spazi/padding indesiderati sulle immagini full-bleed */
-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  -webkit-user-drag: none;
-  user-select: none;
+/* Inputs & button */
+@layer components {
+  .input {
+    @apply w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base outline-none focus:ring-2 focus:ring-black/10;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-black px-5 py-3 text-white font-semibold hover:bg-black/90 transition;
+  }
 }
 
-/* Utility per sfumatura tra sezioni (evita la “riga” di stacco) */
-.section-fade {
-  pointer-events: none;
+/* Sezione immagine con FADE morbido e dim dinamico */
+.section-image {
+  position: relative;
+  /* maschera che sfuma top/bottom (toglie la "riga") */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+.section-dim {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 2rem; /* ~8 in tailwind */
-  background-image: linear-gradient(to bottom, transparent, white);
+  inset: 0;
+  background: radial-gradient(80% 80% at 50% 60%, rgba(0,0,0,0.15), rgba(0,0,0,0.35));
+  opacity: .55;               /* di base le sezioni sono più scure */
+  transition: opacity 400ms ease;
 }
+.section-image.is-active .section-dim {
+  opacity: .15;               /* la sezione attuale si schiarisce */
+}
+
+/* gradienti appoggiati per dare ancora più morbidezza durante lo scroll */
+.fade-top, .fade-bottom {
+  position: absolute; left: 0; right: 0; height: 96px;
+  pointer-events: none;
+}
+.fade-top    { top: 0;    background: linear-gradient(to bottom, white 0%, transparent 100%); opacity:.75 }
+.fade-bottom { bottom: 0; background: linear-gradient(to top,    white 0%, transparent 100%); opacity:.75 }
