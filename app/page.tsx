@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
 import Section from "./components/Section";
-import ContactForm from "./components/ContactForm";
+import React from "react";
 
 type SectionItem = {
   id: string;
@@ -33,7 +32,7 @@ const sections: SectionItem[] = [
   {
     id: "infrastrutture",
     title: "Infrastrutture",
-    subtitle: "Tetti, ponti, pannelli solari, antenne",
+    subtitle: "Tetti, aponTi, pannelli solari, antenne",
     image: "/images/infrastrutture.jpg",
   },
   {
@@ -44,42 +43,67 @@ const sections: SectionItem[] = [
   },
 ];
 
-export default function HomePage() {
+function SectionBlock({ s }: { s: SectionItem }) {
   return (
-    <main className="bg-white">
-      {sections.map((s) => (
-        <Section key={s.id}>
-          <div
-            id={s.id}
-            className="relative min-h-screen flex flex-col items-center justify-center text-white"
-            style={{
-              backgroundImage: `url(${s.image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            {/* velatura leggera per testo leggibile */}
-            <div className="absolute inset-0 bg-black/25" />
+    <Section>
+      <div
+        id={s.id}
+        className="relative h-[100svh] flex flex-col items-center justify-center text-white"
+        style={{
+          backgroundImage: `url(${s.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* niente overlay bianco qui, ci pensa <Section> ai fade */}
+        <div className="relative z-10 text-center px-4">
+          <h2 className="text-4xl sm:text-5xl font-extrabold drop-shadow">
+            {s.title}
+          </h2>
+          {s.subtitle && (
+            <p className="mt-4 text-lg sm:text-xl drop-shadow">{s.subtitle}</p>
+          )}
+        </div>
+      </div>
+    </Section>
+  );
+}
 
-            {/* testo */}
-            <div className="relative z-10 text-center px-4">
-              {s.id === "hero" ? (
-                <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight">
-                  {s.title}
-                </h1>
-              ) : (
-                <h2 className="text-4xl sm:text-5xl font-extrabold">{s.title}</h2>
-              )}
-              {s.subtitle && (
-                <p className="mt-4 text-lg sm:text-xl opacity-95">{s.subtitle}</p>
-              )}
-            </div>
-          </div>
-        </Section>
+export default function HomePage() {
+  const hero = sections[0];
+  const rest = sections.slice(1);
+
+  return (
+    <main>
+      {/* HERO (senza fade sopra) */}
+      <div
+        id={hero.id}
+        className="relative h-[100svh] flex flex-col items-center justify-center text-white"
+        style={{
+          backgroundImage: `url(${hero.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* puoi tenere un leggero darken solo per leggibilità del testo */}
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="relative z-10 text-center px-4">
+          <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight">
+            {hero.title}
+          </h1>
+          {hero.subtitle && (
+            <p className="mt-4 text-lg sm:text-xl opacity-95">{hero.subtitle}</p>
+          )}
+        </div>
+      </div>
+
+      {/* SEZIONI SUCCESSIVE con fade morbido tra una e l'altra */}
+      {rest.map((s) => (
+        <SectionBlock key={s.id} s={s} />
       ))}
 
-      {/* FORM contatti in fondo */}
-      <ContactForm />
+      {/* Se hai un form di contatto in fondo, rimettilo qui */}
+      {/* <ContactForm /> */}
     </main>
   );
 }
