@@ -1,5 +1,5 @@
 "use client";
-
+import Section from "./components/Section";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -68,16 +68,25 @@ export default function HomePage() {
       {/* HERO + CATEGORIE */}
       <div className="sr-only">Categorie principali</div>
 
-      {sections.map((s, idx) => (
-        <Section
-          key={s.id}
-          refCb={(el) => (refs.current[s.id] = el)}
-          data={s}
-          active={active === s.id}
-          isFirst={idx === 0}
-          isLast={idx === sections.length - 1}
-        />
-      ))}
+      {sections.map((section, index) => (
+  <Section key={section.id}>
+    <div
+      id={section.id}
+      className="relative h-screen flex flex-col items-center justify-center text-white"
+      style={{
+        backgroundImage: `url(${section.image})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-white" />
+      <div className="relative z-10 text-center px-4">
+        <h2 className="text-4xl font-bold mb-4">{section.title}</h2>
+        <p className="text-lg">{section.subtitle}</p>
+      </div>
+    </div>
+  </Section>
+))}
 
       {/* FORM contatti in fondo */}
       <ContactForm />
