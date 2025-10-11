@@ -10,7 +10,7 @@ type Props = {
 export default function Section({ children, className, fade = 180 }: Props) {
   // Gradiente molto più morbido e distribuito
 const mask = linear-gradient(
-  to bottom,
+ to bottom,
         rgba(255,255,255,0)   0%,
         rgba(255,255,255,0.10) 18%,
         rgba(255,255,255,0.22) 28%,
@@ -26,7 +26,7 @@ const mask = linear-gradient(
         rgba(255,255,255,0.22) 72%,
         rgba(255,255,255,0.10) 78%,
         rgba(255,255,255,0)   86%
-);
+      )`,
 
   return (
     <section className={`relative w-full ${className ?? ""}`}>
