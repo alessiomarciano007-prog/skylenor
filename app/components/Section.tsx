@@ -9,16 +9,16 @@ type Props = {
 
 export default function Section({ children, className, fade = 180 }: Props) {
   // Gradiente molto più morbido e distribuito
-  const mask = `linear-gradient(
-    to bottom,
-    rgba(0,0,0,0) 0%,
-    rgba(0,0,0,0.25) 25%,
-    rgba(0,0,0,0.45) 40%,
-    rgba(0,0,0,0.55) 55%,
-    rgba(0,0,0,0.45) 70%,
-    rgba(0,0,0,0.25) 85%,
-    rgba(0,0,0,0) 100%
-  )`;
+const mask = `linear-gradient(
+  to bottom,
+  rgba(0,0,0,0) 0%,
+  rgba(0,0,0,0.25) 8%,
+  rgba(0,0,0,0.45) 18%,
+  rgba(0,0,0,0.55) 28%,
+  rgba(0,0,0,0.45) 38%,
+  rgba(0,0,0,0.25) 48%,
+  rgba(0,0,0,0) 55%
+)`;
 
   return (
     <section className={`relative w-full ${className ?? ""}`}>
