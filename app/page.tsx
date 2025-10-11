@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import ContactForm from "./components/ContactForm"; // Assicurati che esista ./app/components/ContactForm.tsx
+import Section from "./components/Section";
+import ContactForm from "./components/ContactForm";
 
 type SectionItem = {
   id: string;
@@ -32,7 +33,7 @@ const sections: SectionItem[] = [
   {
     id: "infrastrutture",
     title: "Infrastrutture",
-    subtitle: "Tetti, aponTi, pannelli solari, antenne",
+    subtitle: "Tetti, ponti, pannelli solari, antenne",
     image: "/images/infrastrutture.jpg",
   },
   {
@@ -45,42 +46,36 @@ const sections: SectionItem[] = [
 
 export default function HomePage() {
   return (
-    <main>
-      {/* Sezioni con sfumatura fissa tra una e l'altra */}
-      {sections.map((s, idx) => (
-        <React.Fragment key={s.id}>
-          <section
+    <main className="bg-white">
+      {sections.map((s) => (
+        <Section key={s.id}>
+          <div
             id={s.id}
-            className="relative h-screen flex flex-col items-center justify-center text-white"
+            className="relative min-h-screen flex flex-col items-center justify-center text-white"
             style={{
               backgroundImage: `url(${s.image})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
           >
-            {/* leggera sfumatura interna per rendere più leggibile il testo */}
-            <div className="absolute inset-0 bg-black/30" />
+            {/* velatura leggera per testo leggibile */}
+            <div className="absolute inset-0 bg-black/25" />
+
+            {/* testo */}
             <div className="relative z-10 text-center px-4">
-              {idx === 0 ? (
+              {s.id === "hero" ? (
                 <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight">
                   {s.title}
                 </h1>
               ) : (
-                <h2 className="text-4xl sm:text-5xl font-extrabold">
-                  {s.title}
-                </h2>
+                <h2 className="text-4xl sm:text-5xl font-extrabold">{s.title}</h2>
               )}
               {s.subtitle && (
                 <p className="mt-4 text-lg sm:text-xl opacity-95">{s.subtitle}</p>
               )}
             </div>
-          </section>
-
-{/* Divisore sfumato più morbido */}
-{idx < sections.length - 1 && (
-  <div className="h-32 sm:h-40 w-full bg-gradient-to-b from-transparent via-white/70 to-white" />
-)}
-        </React.Fragment>
+          </div>
+        </Section>
       ))}
 
       {/* FORM contatti in fondo */}
