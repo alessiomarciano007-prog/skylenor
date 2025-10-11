@@ -11,14 +11,21 @@ export default function Section({ children, className, fade = 180 }: Props) {
   // Gradiente centrato e morbido (copre solo una fascia limitata)
   const mask = `linear-gradient(
     to bottom,
-    rgba(0,0,0,0)   0%,
-    rgba(0,0,0,0.35) 8%,
-    rgba(0,0,0,0.70) 12%,
-    rgba(0,0,0,1)   20%,
-    rgba(0,0,0,1)   80%,
-    rgba(0,0,0,0.70) 88%,
-    rgba(0,0,0,0.35) 92%,
-    rgba(0,0,0,0)  100%
+    rgba(255,255,255,0)   0%,
+    rgba(255,255,255,0.10) 3%,
+    rgba(255,255,255,0.22) 6%,
+    rgba(255,255,255,0.38) 9%,
+    rgba(255,255,255,0.55) 12%,
+    rgba(255,255,255,0.78) 15%,
+    rgba(255,255,255,0.95) 16%,
+    #ffffff                 52%,
+    rgba(255,255,255,0.95) 82%,
+    rgba(255,255,255,0.78) 85%,
+    rgba(255,255,255,0.55) 88%,
+    rgba(255,255,255,0.38) 91%,
+    rgba(255,255,255,0.22) 94%,
+    rgba(255,255,255,0.10) 97%,
+    rgba(255,255,255,0)   100%
   )`;
 
   return (
