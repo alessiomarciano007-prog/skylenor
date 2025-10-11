@@ -9,13 +9,14 @@ type Props = {
 export default function Section({ children, className }: Props) {
   return (
     <section className={`relative w-full overflow-hidden ${className ?? ""}`}>
-      {children}
+      {/* Contenuto della sezione */}
+      <div className="relative z-0">{children}</div>
 
-      {/* SFUMATURA IN ALTO (corta e morbida) */}
+      {/* SFUMATURA IN ALTO (corta e morbida, sopra al contenuto) */}
       <div
         className="
-          pointer-events-none absolute inset-x-0 top-0
-          h-[90px] sm:h-[110px]       /* <— altezza della fascia sopra */
+          pointer-events-none absolute inset-x-0 top-0 z-20
+          h-[90px] sm:h-[110px]
           bg-[linear-gradient(to_bottom,
             rgba(255,255,255,1)_0%,
             rgba(255,255,255,0.92)_35%,
@@ -25,11 +26,11 @@ export default function Section({ children, className }: Props) {
         "
       />
 
-      {/* SFUMATURA IN BASSO (corta e morbida) */}
+      {/* SFUMATURA IN BASSO (corta e morbida, sopra al contenuto) */}
       <div
         className="
-          pointer-events-none absolute inset-x-0 bottom-0
-          h-[110px] sm:h-[130px]      /* <— altezza della fascia sotto (la “blu”) */
+          pointer-events-none absolute inset-x-0 bottom-0 z-20
+          h-[110px] sm:h-[130px]
           bg-[linear-gradient(to_top,
             rgba(255,255,255,1)_0%,
             rgba(255,255,255,0.92)_35%,
