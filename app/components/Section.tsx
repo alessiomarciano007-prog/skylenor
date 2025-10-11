@@ -60,7 +60,7 @@ export default function Section({ children, className }: Props) {
 
       {/* Sfumatura in alto + noise */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-50 h-[170px] sm:h-[190px]"
+        className="pointer-events-none absolute inset-x-0 top-0 z-50 h-[60px] sm:h-[60px]"
         style={topGradient}
       >
         <div className="absolute inset-0" style={noiseStyle} />
@@ -68,7 +68,7 @@ export default function Section({ children, className }: Props) {
 
       {/* Sfumatura in basso + noise */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-50 h-[170px] sm:h-[190px]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-50 h-[60px] sm:h-[60px]"
         style={bottomGradient}
       >
         <div className="absolute inset-0" style={noiseStyle} />
