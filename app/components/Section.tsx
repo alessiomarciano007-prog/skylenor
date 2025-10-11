@@ -4,40 +4,31 @@ import React from "react";
 type Props = {
   children: React.ReactNode;
   className?: string;
-  /** altezza della sfumatura in pixel (solo lato basso) */
-  fadeHeight?: number;
 };
 
-export default function Section({
-  children,
-  className,
-  fadeHeight = 180,
-}: Props) {
+export default function Section({ children, className }: Props) {
   return (
     <section className={`relative w-full ${className ?? ""}`}>
-      {/* CONTENUTO (immagine + testo) */}
-      <div className="relative z-30">{children}</div>
+      {/* Contenuto della sezione */}
+      <div className="relative z-10">{children}</div>
 
-      {/* SFUMATURA IN BASSO: sopra all’immagine, sotto al testo */}
+      {/* Sfumatura più morbida e distribuita */}
       <div
-        className="pointer-events-none absolute bottom-0 left-0 right-0 z-20"
+        className="pointer-events-none absolute inset-0 z-0"
         style={{
-          height: `${fadeHeight}px`,
-          // Gradiente molto distribuito per evitare la “riga bianca”
-          background: `
-            linear-gradient(
-              to bottom,
-              rgba(255,255,255,0)    0%,
-              rgba(255,255,255,0.06) 22%,
-              rgba(255,255,255,0.12) 36%,
-              rgba(255,255,255,0.20) 50%,
-              rgba(255,255,255,0.30) 64%,
-              rgba(255,255,255,0.45) 78%,
-              rgba(255,255,255,0.60) 88%,
-              rgba(255,255,255,0.75) 95%,
-              #ffffff                100%
-            )
-          `,
+          background: `linear-gradient(
+            to bottom,
+            rgba(255,255,255,0)   0%,
+            rgba(255,255,255,0.05) 20%,
+            rgba(255,255,255,0.12) 35%,
+            rgba(255,255,255,0.25) 45%,
+            rgba(255,255,255,0.4)  55%,
+            rgba(255,255,255,0.55) 65%,
+            rgba(255,255,255,0.7)  75%,
+            rgba(255,255,255,0.85) 85%,
+            rgba(255,255,255,0.95) 92%,
+            rgba(255,255,255,1)    100%
+          )`,
         }}
       />
     </section>
