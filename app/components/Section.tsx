@@ -11,12 +11,10 @@ export default function Section({ children, className, fade = 180 }: Props) {
   // Gradiente centrato e morbido (copre solo una fascia limitata)
 const mask = `linear-gradient(
   to bottom,
-  rgba(255,255,255,0) 0%,       /* visibile all'inizio */
-  rgba(255,255,255,0.10) 10%,     /* leggero fade sopra */
-  rgba(255,255,255,1) 35%,      /* bianco pieno breve */
-  rgba(255,255,255,1) 75%,      /* rimane visibile */
-  rgba(255,255,255,0.10) 90%,    /* leggero fade sotto */
-  rgba(255,255,255,0) 100%      /* torna visibile in fondo */
+  rgba(255,255,255,0) 0%,   /* invisibile sopra */
+  rgba(255,255,255,1) 10%,  /* visibile da qui */
+  rgba(255,255,255,1) 90%,  /* visibile fino a qui */
+  rgba(255,255,255,0) 100%  /* invisibile sotto */
 )`;
 
   return (
