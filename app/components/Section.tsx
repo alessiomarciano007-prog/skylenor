@@ -27,17 +27,15 @@ export default function Section({
   const s2 = Math.max(0, edge * 0.7);  // secondo step morbido
   // gli stop per il lato inferiore sono speculari
 
-  const maskCSS = `linear-gradient(
-    to bottom,
-    rgba(0,0,0,1) 0%,
-    rgba(0,0,0,0.75) ${s1}%,
-    rgba(0,0,0,0.4) ${s2}%,
-    rgba(0,0,0,0) ${edge}%,
-    rgba(0,0,0,0) ${100 - edge}%,
-    rgba(0,0,0,0.4) ${100 - s2}%,
-    rgba(0,0,0,0.75) ${100 - s1}%,
-    rgba(0,0,0,1) 100%
-  )`;
+const mask = `linear-gradient(
+  to bottom,
+  rgba(0,0,0,0) 0%,         /* inizio trasparente */
+  rgba(0,0,0,0.4) 15%,      /* fade iniziale morbido */
+  #000 25%,                 /* pieno visibile */
+  #000 75%,                 /* continua visibile */
+  rgba(0,0,0,0.4) 85%,      /* fade finale morbido */
+  rgba(0,0,0,0) 100%        /* fine trasparente */
+)`;
 
   return (
     <section className={`relative w-full ${className ?? ""}`}>
