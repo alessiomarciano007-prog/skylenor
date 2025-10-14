@@ -17,8 +17,8 @@ export default function Section({
   const bottomGrad =
     "linear-gradient(to bottom," +
     "rgba(255,255,255,0) 10%," +
-    "rgba(255,255,255,0.56) 40%," +
-    "rgba(255,255,255,0.87) 70%," +
+    "rgba(255,255,255,0.46) 40%," +
+    "rgba(255,255,255,0.76) 70%," +
     "#ffffff 100%)";
 
  // gradiente morbido verso l’ALTO (bianco -> trasparente)
@@ -26,7 +26,7 @@ export default function Section({
     "linear-gradient(to top," +
     "rgba(255,255,255,0) 10%," +
     "rgba(255,255,255,0.56) 40%," +
-    "rgba(255,255,255,0.87) 70%," +
+    "rgba(255,255,255,0.76) 70%," +
     "#ffffff 100%)";
 
   return (
