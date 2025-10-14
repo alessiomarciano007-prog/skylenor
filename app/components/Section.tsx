@@ -25,7 +25,7 @@ export default function Section({
   const topGrad =
     "linear-gradient(to top," +
     "rgba(255,255,255,0) 10%," +
-    "rgba(255,255,255,0.56) 40%," +
+    "rgba(255,255,255,0.48) 40%," +
     "rgba(255,255,255,0.76) 70%," +
     "#ffffff 100%)";
 
