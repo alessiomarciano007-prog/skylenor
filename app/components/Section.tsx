@@ -4,51 +4,53 @@ import React from "react";
 type Props = {
   children: React.ReactNode;
   className?: string;
-  /** percentuale della parte centrale completamente visibile (senza velo bianco) */
-  visibleCenterPct?: number; // es. 60 => 20% fade sopra + 20% fade sotto
-  /** morbidezza della sfumatura (più alto = più morbida), espresso in % dell’altezza */
-  softnessPct?: number; // es. 6-10 è un buon range
+  /** larghezza della parte centrale forte (0 = senza “rigone” bianco) */
+  bandPct?: number;      // es. 0–3
+  /** lunghezza della sfumatura sopra/sotto la giunzione */
+  featherPct?: number;   // es. 6–10
+  /** spostamento della giunzione (se serve) */
+  offsetPct?: number;    // es. -2..+2
 };
 
 export default function Section({
   children,
   className,
-  visibleCenterPct = 60,
-  softnessPct = 8,
+  bandPct = 0,       // nessun plateau: tutto graduale
+  featherPct = 8,    // quanto “larga” è la sfumatura
+  offsetPct = 0,     // 0 = centrata esattamente a metà sezione
 }: Props) {
-  // clamp parametri
-  const vis = Math.max(0, Math.min(100, visibleCenterPct));
-  const soft = Math.max(1, Math.min(20, softnessPct));
+  const mid = 50 + offsetPct;              // posizione giunzione (linea rossa)
+  const halfBand = bandPct / 2;
 
-  // Calcolo stop della maschera per l'overlay bianco
-  // useremo un overlay bianco che è VISIBILE solo ai bordi grazie alla mask
-  const edge = (100 - vis) / 2; // porzione per lato (es. vis=60 -> edge=20)
-  const s1 = Math.max(0, edge * 0.35); // primo step morbido
-  const s2 = Math.max(0, edge * 0.7);  // secondo step morbido
-  // gli stop per il lato inferiore sono speculari
+  // stop del mask (il bianco dell'overlay è visibile solo vicino alla giunzione)
+  const a = (mid - halfBand - featherPct).toFixed(2); // fine trasparenza sopra
+  const b = (mid - halfBand).toFixed(2);              // inizio “cuore”
+  const c = (mid + halfBand).toFixed(2);              // fine “cuore”
+  const d = (mid + halfBand + featherPct).toFixed(2); // inizio trasparenza sotto
 
-  const maskCSS = `linear-gradient(
+  const mask = `linear-gradient(
     to bottom,
-    rgba(0,0,0,0)   0%,    /* trasparente (niente bianco) */
-    rgba(0,0,0,0.4) 15%,   /* fade IN */
-    #000            25%,   /* inizio zona centrale visibile */
-    #000            75%,   /* fine zona centrale visibile */
-    rgba(0,0,0,0.4) 85%,   /* fade OUT */
-    rgba(0,0,0,0)   100%   /* trasparente */
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,0) ${a}%,
+    rgba(0,0,0,0.35) ${b}%,
+    #000 ${mid - 0.1}%,
+    #000 ${mid + 0.1}%,
+    rgba(0,0,0,0.35) ${c}%,
+    rgba(0,0,0,0) ${d}%,
+    rgba(0,0,0,0) 100%
   )`;
+
   return (
     <section className={`relative w-full ${className ?? ""}`}>
-      {/* Contenuto (immagine + overlay scuro per testi) */}
       <div className="relative z-0">{children}</div>
-
-      {/* Overlay bianco con MASCHERA: bianco solo ai bordi, trasparente al centro */}
+      {/* velo bianco visibile solo attorno alla giunzione */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-10"
         style={{
           background: "#fff",
-          WebkitMaskImage: maskCSS,
-          maskImage: maskCSS,
+          WebkitMaskImage: mask,
+          maskImage: mask,
           WebkitMaskRepeat: "no-repeat",
           maskRepeat: "no-repeat",
           WebkitMaskSize: "100% 100%",
