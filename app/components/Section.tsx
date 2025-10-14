@@ -11,14 +11,14 @@ type Props = {
 export default function Section({
   children,
   className,
-  featherPct = 18,
+  featherPct = 12,
 }: Props) {
   // gradiente morbido verso il BASSO (trasparente -> bianco)
   const bottomGrad =
     "linear-gradient(to bottom," +
     "rgba(255,255,255,0) 10%," +
     "rgba(255,255,255,0.26) 40%," +
-    "rgba(255,255,255,0.57) 70%," +
+    "rgba(255,255,255,0.77) 70%," +
     "#ffffff 100%)";
 
  // gradiente morbido verso l’ALTO (bianco -> trasparente)
@@ -26,7 +26,7 @@ export default function Section({
     "linear-gradient(to top," +
     "rgba(255,255,255,0) 10%," +
     "rgba(255,255,255,0.26) 40%," +
-    "rgba(255,255,255,0.57) 70%," +
+    "rgba(255,255,255,0.77) 70%," +
     "#ffffff 100%)";
 
   return (
