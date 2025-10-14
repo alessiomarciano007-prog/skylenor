@@ -11,7 +11,7 @@ type Props = {
 export default function Section({
   children,
   className,
-  featherPct = 9,
+  featherPct = 12,
 }: Props) {
   // gradiente morbido verso il BASSO (trasparente -> bianco)
   const bottomGrad =
